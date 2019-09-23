@@ -2,6 +2,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -290,14 +291,22 @@ public class DeviceInitMain {
         return properties;
     }
 
+    private static double getXlsNumberValue(Cell cell, FormulaEvaluator evaluator) {
+        CellType cellType = cell.getCellType();
+        if (cellType.equals(CellType.NUMERIC)) {
+            return cell.getNumericCellValue();
+        }
+        return evaluator.evaluate(cell).getNumberValue();
+    }
 
-    public static JSONObject readXls(File xlsFile) throws Exception {
+    private static JSONObject readXls(File xlsFile) throws Exception {
         JSONObject datas = new JSONObject();
         Workbook wb = null;
         try {
             wb = WorkbookFactory.create(xlsFile);
             int numberOfSheets = wb.getNumberOfSheets();
             if (numberOfSheets > 0) {
+                FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
                 for (int i = 0; i < numberOfSheets; i++) {
                     Sheet sheet = wb.getSheetAt(i);
                     if (sheet != null) {
@@ -333,18 +342,20 @@ public class DeviceInitMain {
                                                     } else if ("xs".equals(value)) {
                                                         isXs = true;
                                                     }
-                                                } else if (cellType.equals(CellType.NUMERIC)) {
+                                                } else if (cellType.equals(CellType.NUMERIC) || cellType.equals(CellType.FORMULA)) {
                                                     if (isXs) {
                                                         // 系数
                                                         if (k == 1) {
                                                             // x的系数
-                                                            double x = cell.getNumericCellValue();
+                                                            //double x = cell.getNumericCellValue();
+                                                            double x = getXlsNumberValue(cell, evaluator);
                                                             System.out.println(difValue + ": x:" + x);
 
                                                             sheetNameJson.getJSONObject(difValue).put("xs_x", x);
                                                         } else if (k == 2) {
                                                             // y的系数
-                                                            double y = cell.getNumericCellValue();
+                                                            //double y = cell.getNumericCellValue();
+                                                            double y = getXlsNumberValue(cell, evaluator);
                                                             System.out.println(difValue + ": y:" + y);
                                                             sheetNameJson.getJSONObject(difValue).put("xs_y", y);
                                                             isXs = false;
@@ -353,16 +364,16 @@ public class DeviceInitMain {
                                                         // 具体值
                                                         JSONArray tmp = sheetNameJson.getJSONObject(difValue).getJSONArray("mark");
                                                         if (k == 0) {
-                                                            int t = ((int) cell.getNumericCellValue());
+                                                            int t = ((int) getXlsNumberValue(cell, evaluator));
                                                             if (tmp.size() < t) {
                                                                 tmp.add(new JSONObject());
                                                             }
                                                         } else if (k == 1) {
                                                             JSONObject jsonObject = tmp.getJSONObject(tmp.size() - 1);
-                                                            jsonObject.put("x", cell.getNumericCellValue());
+                                                            jsonObject.put("x", getXlsNumberValue(cell, evaluator));
                                                         } else if (k == 2) {
                                                             JSONObject jsonObject = tmp.getJSONObject(tmp.size() - 1);
-                                                            jsonObject.put("y", cell.getNumericCellValue());
+                                                            jsonObject.put("y", getXlsNumberValue(cell, evaluator));
                                                         }
                                                     }
                                                 }
