@@ -53,6 +53,8 @@ public class DeviceInitMain {
         ArrayList<File> xlsFiles = getXlsFiles(deviceInitPath);
         //System.out.println(Xls2TxtMain.class.getClassLoader().getResource("").getPath());
         System.out.println(xlsFiles);
+        // 清库(注意这个会清库 truncate)
+        truncateDB();
         for (File xlsFile : xlsFiles) {
             String fileName = xlsFile.getName();
             // 文件名就是设备id
@@ -87,7 +89,7 @@ public class DeviceInitMain {
                 ret.put("lh", lhead);
 
                 // 入库
-                //insertDB(deviceId, model_name, ret.toString());
+                insertDB(deviceId, model_name, ret.toString());
             }
         }
     }
@@ -149,11 +151,12 @@ public class DeviceInitMain {
     }
 
     private static JSONArray select() {
+        Connection conn = null;
         PreparedStatement pst = null;
         ResultSet resultSet = null;
         JSONArray datas = new JSONArray();
-        Connection conn = getConnection();
         try {
+            conn = getConnection();
             pst = conn.prepareStatement("select * from acupoint_model");
             resultSet = pst.executeQuery();
             while (resultSet.next()) {
@@ -193,6 +196,33 @@ public class DeviceInitMain {
         return datas;
     }
 
+
+    private static void truncateDB() {
+        Connection conn = null;
+        PreparedStatement pst = null;
+        try {
+            conn = getConnection();
+            pst = conn.prepareStatement("truncate table eqp_cam_model_info");
+            pst.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (pst != null) {
+                try {
+                    pst.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
     public static void insertDB(String eqp_code, String model_name, String zero_point) {
         Connection conn = getConnection();
