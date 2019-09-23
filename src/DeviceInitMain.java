@@ -68,9 +68,6 @@ public class DeviceInitMain {
                 JSONObject jsonObject = models.getJSONObject(i);
                 JSONObject acupoint_points = jsonObject.getJSONObject("acupoint_points");
                 String model_name = jsonObject.getString("model_name");
-
-                JSONObject ret = new JSONObject();
-
                 JSONArray rf = acupoint_points.getJSONArray("rf");
                 JSONArray rfoot = foot(model_name, "rf", rf, datas);
 
@@ -83,6 +80,7 @@ public class DeviceInitMain {
                 JSONArray lh = acupoint_points.getJSONArray("lh");
                 JSONArray lhead = head(model_name, "lh", lh, datas);
 
+                JSONObject ret = new JSONObject();
                 ret.put("rf", rfoot);
                 ret.put("lf", lfoot);
                 ret.put("rh", rhead);
