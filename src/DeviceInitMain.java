@@ -78,16 +78,16 @@ public class DeviceInitMain {
                 JSONArray lfoot = foot(model_name, "lf", lf, datas);
 
                 JSONArray rh = acupoint_points.getJSONArray("rh");
-                JSONArray rhead = head(model_name, "rh", rh, datas);
+                JSONArray rhand = hand(model_name, "rh", rh, datas);
 
                 JSONArray lh = acupoint_points.getJSONArray("lh");
-                JSONArray lhead = head(model_name, "lh", lh, datas);
+                JSONArray lhand = hand(model_name, "lh", lh, datas);
 
                 JSONObject ret = new JSONObject();
                 ret.put("rf", rfoot);
                 ret.put("lf", lfoot);
-                ret.put("rh", rhead);
-                ret.put("lh", lhead);
+                ret.put("rh", rhand);
+                ret.put("lh", lhand);
 
                 // 入库
                 insertDB(deviceId, model_name, ret.toString());
@@ -95,9 +95,9 @@ public class DeviceInitMain {
         }
     }
 
-    private static JSONObject queryPoint(JSONArray head, int num, int offset, String model_name, String type, JSONObject datas) {
+    private static JSONObject queryPoint(JSONArray hand, int num, int offset, String model_name, String type, JSONObject datas) {
         JSONObject f;
-        JSONObject jsonObject = head.getJSONObject(num);
+        JSONObject jsonObject = hand.getJSONObject(num);
         int p = (int) (jsonObject.getDouble("z") * 1000) - offset;
         f = datas.getJSONObject(type).getJSONObject(Integer.toString(p));
         if (f != null) {
@@ -114,14 +114,14 @@ public class DeviceInitMain {
         return f;
     }
 
-    public static JSONArray head(String model_name, String type, JSONArray head, JSONObject datas) {
+    public static JSONArray hand(String model_name, String type, JSONArray hand, JSONObject datas) {
         JSONObject rh0 = datas.getJSONObject(type).getJSONObject(Integer.toString(0));
         int offset = 237;
         JSONArray ret = new JSONArray();
         ret.add(rh0);
-        ret.add(queryPoint(head, 2, offset, model_name, type, datas));
-        ret.add(queryPoint(head, 3, offset, model_name, type, datas));
-        ret.add(queryPoint(head, 7, offset, model_name, type, datas));
+        ret.add(queryPoint(hand, 2, offset, model_name, type, datas));
+        ret.add(queryPoint(hand, 3, offset, model_name, type, datas));
+        ret.add(queryPoint(hand, 7, offset, model_name, type, datas));
         //System.out.println("type:"+type+", model_name:" + model_name + " , ret:" + ret);
         return ret;
     }
