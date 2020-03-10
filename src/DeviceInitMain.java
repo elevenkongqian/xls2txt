@@ -122,7 +122,7 @@ public class DeviceInitMain {
         ret.add(queryPoint(hand, 2, offset, model_name, type, datas));
         ret.add(queryPoint(hand, 3, offset, model_name, type, datas));
         ret.add(queryPoint(hand, 7, offset, model_name, type, datas));
-        //System.out.println("type:"+type+", model_name:" + model_name + " , ret:" + ret);
+        System.out.println("type:"+type+", model_name:" + model_name + " , ret:" + ret);
         return ret;
     }
 
